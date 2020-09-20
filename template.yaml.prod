@@ -1,0 +1,186 @@
+# for production environment
+
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    Timeout: 3
+    Environment:
+      Variables:
+        DYNAMODB_TABLE_NAME_CHORES: &DYNAMODB_TABLE_NAME_CHORES ShareHousework-Chores # Replace with your AWS resources
+        DYNAMODB_TABLE_NAME_USERS: &DYNAMODB_TABLE_NAME_USERS ShareHousework-Users # Replace with your AWS resources
+  HttpApi:
+    Auth:
+      Authorizers:
+        jwtAuthorizer:
+          JwtConfiguration:
+            issuer: https://cognito-idp.us-west-2.amazonaws.com/us-west-2_0YmopcueY # https://cognito-idp.{region}.amazonaws.com/{userPoolId}
+            audience:
+              - 3ikhh6llbjjqlh8fcteift9ern # App client ID
+          IdentitySource: "$request.header.Authorization"
+      DefaultAuthorizer: jwtAuthorizer
+
+Resources:
+  dynamoDBTableUsers:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: *DYNAMODB_TABLE_NAME_USERS # If you specify a name, you cannot perform updates that require replacement of this resource.
+      KeySchema:
+        - AttributeName: Username
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: Username
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  dynamoDBTableChores:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: *DYNAMODB_TABLE_NAME_CHORES # If you specify a name, you cannot perform updates that require replacement of this resource.
+      KeySchema:
+        - AttributeName: Owner
+          KeyType: HASH
+        - AttributeName: TimeCreated
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: Owner
+          AttributeType: S
+        - AttributeName: TimeCreated
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  shareHouseworkTestFunc:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: &lambdaRole arn:aws:iam::591396649820:role/ShareHouseworkLambdaRole # Replace with your AWS resources
+      CodeUri: lambdaFunctions/shareHouseworkTestFunc
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /testApi
+            Method: get
+  acceptRoommateRequest:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/acceptRoommateRequest
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /acceptRoommateRequest
+            Method: put
+  cancelRoommateRequest:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/cancelRoommateRequest
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /cancelRoommateRequest
+            Method: put
+  confirmChorePayment:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/confirmChorePayment
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /confirmChorePayment
+            Method: put
+  confirmChorePerformance:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/confirmChorePerformance
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /confirmChorePerformance
+            Method: put
+  createChore:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/createChore
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /createChore
+            Method: post
+  getChores:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/getChores
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /getChores
+            Method: get
+  getPayeesChores:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/getPayeesChores
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /getPayeesChores
+            Method: get
+  getUserProfile:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/getUserProfile
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /getUserProfile
+            Method: get
+  putUserProfile:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/putUserProfile
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /putUserProfile
+            Method: put
+  requestRoommate:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: *lambdaRole
+      CodeUri: lambdaFunctions/requestRoommate
+      Handler: index.handler
+      Events:
+        httpApi:
+          Type: HttpApi
+          Properties:
+            Path: /requestRoommate
+            Method: put
