@@ -41,4 +41,4 @@ In the AWS API Gateway console, update the CORS for the API with the following:
 
 - Access-Control-Allow-Origin: \*
 - Access-Control-Allow-Headers: authorization, content-type
-- Access-Control-Allow-Methods
+- Access-Control-Allow-Methods: \*
