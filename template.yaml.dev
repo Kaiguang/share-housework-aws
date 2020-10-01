@@ -52,18 +52,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-  shareHouseworkTestFunc:
-    Type: AWS::Serverless::Function
-    Properties:
-      Role: &lambdaRole arn:aws:iam::591396649820:role/Share-Housework-Lambda-Role-Dev # Replace with your AWS resources
-      CodeUri: lambdaFunctions/shareHouseworkTestFunc
-      Handler: index.handler
-      Events:
-        httpApi:
-          Type: HttpApi
-          Properties:
-            Path: /testApi
-            Method: get
   acceptRoommateRequest:
     Type: AWS::Serverless::Function
     Properties:
